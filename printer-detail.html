@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printer-001 - Детализация</title>
+    <style>
+        /* Стили аналогичные главной странице, добавим специфичные */
+        .printer-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .printer-status-large {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin-left: 20px;
+        }
+        
+        .control-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .control-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .control-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #3498db;
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+        
+        .parameter-history {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .parameter-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-top: 3px solid #2ecc71;
+        }
+        
+        .parameter-card.warning {
+            border-top-color: #f39c12;
+        }
+        
+        .parameter-card.error {
+            border-top-color: #e74c3c;
+        }
+        
+        .live-camera {
+            background: #2c3e50;
+            border-radius: 8px;
+            padding: 20px;
+            color: white;
+            margin-top: 30px;
+        }
+        
+        .camera-placeholder {
+            height: 300px;
+            background: #1a252f;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .print-progress {
+            margin: 25px 0;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            width: 45%;
+            transition: width 0.5s ease;
+        }
+        
+        .emergency-stop {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            transition: background 0.3s;
+        }
+        
+        .emergency-stop:hover {
+            background: #c0392b;
+        }
+        
+        .log-stream {
+            background: #1a252f;
+            color: #2ecc71;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            border-radius: 8px;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .log-time {
+            color: #95a5a6;
+        }
+        
+        .log-info {
+            color: #3498db;
+        }
+        
+        .log-warning {
+            color: #f39c12;
+        }
+        
+        .log-error {
+            color: #e74c3c;
+        }
+        
+        .coordinates-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .coord-axis {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .axis-label {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .axis-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #3498db;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (как в главной) -->
+        
+        <div class="main-content">
+            <!-- Хлебные крошки -->
+            <div style="margin-bottom: 20px; color: #7f8c8d;">
+                <a href="index.html" style="color: #3498db; text-decoration: none;">Главная</a> 
+                <span style="margin: 0 10px;">></span> 
+                <span>Printer-001</span>
+            </div>
+            
+            <!-- Заголовок принтера -->
+            <div class="printer-header">
+                <h1 class="page-title">Printer-001 
+                    <span style="font-size: 1rem; color: #7f8c8d;">Industrial Pro X1</span>
+                </h1>
+                <div class="printer-status-large status-badge badge-printing">ПЕЧАТАЕТ</div>
+                <div style="margin-left: auto;">
+                    <button class="action-btn"><i class="fas fa-download"></i> Логи</button>
+                    <button class="action-btn btn-secondary"><i class="fas fa-cog"></i> Настройки</button>
+                </div>
+            </div>
+            
+            <!-- Прогресс печати -->
+            <div class="print-progress">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div>Печать модели: <strong>Деталь_А-145_v3.gcode</strong></div>
+                    <div><span class="control-value">45%</span> завершено</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 45%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.9rem; color: #7f8c8d;">
+                    <div>Слой: <strong>145/320</strong></div>
+                    <div>Осталось: <strong>2ч 15м</strong></div>
+                </div>
+            </div>
+            
+            <!-- Панель управления -->
+            <div class="control-panel">
+                <h2 style="margin-bottom: 25px; color: #2c3e50;">
+                    <i class="fas fa-sliders-h" style="margin-right: 10px;"></i>Управление параметрами
+                </h2>
+                
+                <div class="control-grid">
+                    <!-- Левая колонка: Основные параметры -->
+                    <div>
+                        <h3 style="margin-bottom: 20px; color: #3498db;">
+                            <i class="fas fa-thermometer-half" style="margin-right: 8px;"></i>Температуры
+                        </h3>
+                        
+                        <div class="control-row">
+                            <div class="control-label">Лазер:</div>
+                            <div class="control-value" id="laser-temp">245°C</div>
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Корректировка: </span>
+                                <span id="temp-adjust-value">+0°C</span>
+                            </div>
+                            <input type="range" min="-50" max="50" value="0" class="slider" id="temp-slider">
+                        </div>
+                        
+                        <button class="action-btn" style="width: 100%; margin-top: 15px;">
+                            <i class="fas fa-paper-plane"></i> Применить
+                        </button>
+                        
+                        <div class="control-row" style="margin-top: 25px;">
+                            <div class="control-label">Платформа:</div>
+                            <div class="control-value">110°C</div>
+                        </div>
+                        
+                        <div class="control-row">
+                            <div class="control-label">Камера:</div>
+                            <div class="control-value">65°C</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Правая колонка: Координаты -->
+                    <div>
+                        <h3 style="margin-bottom: 20px; color: #3498db;">
+                            <i class="fas fa-crosshairs" style="margin-right: 8px;"></i>Координаты
+                        </h3>
+                        
+                        <div class="coordinates-display">
+                            <div class="coord-axis">
+                                <div class="axis-label">X</div>
+                                <div class="axis-value" id="coord-x">145.2</div>
+                                <div style="font-size: 0.8rem; margin-top: 5px;">мм</div>
+                            </div>
+                            <div class="coord-axis">
+                                <div class="axis-label">Y</div>
+                                <div class="axis-value" id="coord-y">87.5</div>
+                                <div style="font-size: 0.8rem; margin-top: 5px;">мм</div>
+                            </div>
+                            <div class="coord-axis">
+                                <div class="axis-label">Z</div>
+                                <div class="axis-value" id="coord-z">32.8</div>
+                                <div style="font-size: 0.8rem; margin-top: 5px;">мм</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <h4 style="margin-bottom: 10px; color: #7f8c8d;">Ручное управление</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <button class="action-btn btn-secondary"><i class="fas fa-arrow-up"></i> Z+</button>
+                                <button class="action-btn btn-secondary"><i class="fas fa-home"></i> Home</button>
+                                <button class="action-btn btn-secondary"><i class="fas fa-stop"></i> Стоп</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Графики телеметрии -->
+            <div class="charts-container" style="margin-top: 30px;">
+                <div class="chart-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 class="chart-title">Температура лазера (24ч)</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="action-btn" style="padding: 5px 10px; font-size: 0.8rem;">1ч</button>
+                            <button class="action-btn" style="padding: 5px 10px; font-size: 0.8rem;">24ч</button>
+                            <button class="action-btn" style="padding: 5px 10px; font-size: 0.8rem;">7д</button>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <!-- График Chart.js -->
+                        <canvas id="temp-chart" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-box">
+                    <h3 class="chart-title">Уровень кислорода</h3>
+                    <div class="chart-placeholder">
+                        <!-- График Chart.js -->
+                        <canvas id="oxygen-chart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Параметры в реальном времени -->
+            <div class="parameter-history">
+                <div class="parameter-card">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="control-label">Остаток материала</div>
+                        <div class="control-value">78%</div>
+                    </div>
+                    <div style="margin-top: 10px; height: 10px; background: #ecf0f1; border-radius: 5px;">
+                        <div style="width: 78%; height: 100%; background: #2ecc71; border-radius: 5px;"></div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 5px;">Титан PLA, катушка #4</div>
+                </div>
+                
+                <div class="parameter-card warning">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="control-label">Уровень кислорода</div>
+                        <div class="control-value">0.9%</div>
+                    </div>
+                    <div style="margin-top: 10px; color: #f39c12; font-size: 0.9rem;">
+                        <i class="fas fa-exclamation-triangle"></i> Ниже нормы (1.0%)
+                    </div>
+                </div>
+                
+                <div class="parameter-card">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="control-label">Скорость печати</div>
+                        <div class="control-value">85 мм/с</div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.9rem; color: #7f8c8d;">
+                        Максимальная: 120 мм/с
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Камера и логи -->
+            <div class="control-grid" style="margin-top: 30px;">
+                <div class="live-camera">
+                    <h3 style="margin-bottom: 15px;">
+                        <i class="fas fa-video" style="margin-right: 10px;"></i>Камера печати
+                    </h3>
+                    <div class="camera-placeholder">
+                        <div style="text-align: center;">
+                            <i class="fas fa-video" style="font-size: 3rem; color: #34495e; margin-bottom: 10px;"></i>
+                            <div>Live Stream</div>
+                            <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 5px;">30 FPS • 1920x1080</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="action-btn" style="flex: 1;"><i class="fas fa-expand"></i> Полный экран</button>
+                        <button class="action-btn btn-secondary" style="flex: 1;"><i class="fas fa-camera"></i> Снимок</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">
+                        <i class="fas fa-stream" style="margin-right: 10px;"></i>Журнал событий
+                    </h3>
+                    <div class="log-stream">
+                        <div class="log-entry">
+                            <span class="log-time">[14:23:45]</span> 
+                            <span class="log-info">Запущена печать: Деталь_А-145_v3.gcode</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">[14:30:12]</span> 
+                            <span class="log-info">Температура стабилизирована: 245°C</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">[14:45:33]</span> 
+                            <span class="log-warning">Уровень кислорода: 0.9% (ниже порога)</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">[15:10:28]</span> 
+                            <span class="log-info">Слой 100/320 завершён</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">[15:22:17]</span> 
+                            <span class="log-info">Оператор Иван Петров: корректировка скорости +5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Кнопка экстренной остановки -->
+            <button class="emergency-stop" id="emergency-btn">
+                <i class="fas fa-stop-circle" style="margin-right: 10px; font-size: 1.2rem;"></i>
+                ЭКСТРЕННАЯ ОСТАНОВКА
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Имитация обновления данных в реальном времени
+        function updateLiveData() {
+            // Температура ±2°C
+            const currentTemp = 245 + (Math.random() * 4 - 2);
+            document.getElementById('laser-temp').textContent = Math.round(currentTemp) + '°C';
+            
+            // Координаты (имитация движения)
+            const x = 145.2 + Math.random() * 0.1;
+            const y = 87.5 + Math.random() * 0.1;
+            const z = 32.8 + Math.random() * 0.05;
+            
+            document.getElementById('coord-x').textContent = x.toFixed(1);
+            document.getElementById('coord-y').textContent = y.toFixed(1);
+            document.getElementById('coord-z').textContent = z.toFixed(1);
+            
+            // Прогресс печати
+            const progressBar = document.querySelector('.progress-fill');
+            const currentWidth = parseFloat(progressBar.style.width);
+            if (currentWidth < 100) {
+                progressBar.style.width = (currentWidth + 0.01) + '%';
+            }
+        }
+        
+        // Обновляем каждые 2 секунды (в реальной системе через WebSocket)
+        setInterval(updateLiveData, 2000);
+        
+        // Слайдер температуры
+        const tempSlider = document.getElementById('temp-slider');
+        const tempValue = document.getElementById('temp-adjust-value');
+        
+        tempSlider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            tempValue.textContent = (value >= 0 ? '+' : '') + value + '°C';
+            tempValue.style.color = value === 0 ? '#7f8c8d' : 
+                                   value > 0 ? '#e74c3c' : '#3498db';
+        });
+        
+        // Кнопка экстренной остановки
+        document.getElementById('emergency-btn').addEventListener('click', function() {
+            if (confirm('ВЫ УВЕРЕНЫ? ЭКСТРЕННАЯ ОСТАНОВКА ПРЕРВЁТ ПЕЧАТЬ И МОЖЕТ ПОВРЕДИТЬ ИЗДЕЛИЕ!')) {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ОСТАНАВЛИВАЕМ...';
+                this.style.background = '#c0392b';
+                
+                // Имитация отправки команды
+                setTimeout(() => {
+                    alert('Команда экстренной остановки отправлена на принтер Printer-001');
+                    this.innerHTML = '<i class="fas fa-check"></i> ОСТАНОВЛЕНО';
+                    this.style.background = '#27ae60';
+                }, 1500);
+            }
+        });
+        
+        // Инициализация графиков (упрощённая)
+        const tempCtx = document.getElementById('temp-chart').getContext('2d');
+        const oxygenCtx = document.getElementById('oxygen-chart').getContext('2d');
+        
+        // Здесь будет код инициализации Chart.js графиков
+        // В реальной системе данные будут приходить через WebSocket
+    </script>
+</body>
+</html>

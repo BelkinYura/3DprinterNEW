@@ -1,0 +1,79 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Базы данных
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: 3dprint_monitor
+      POSTGRES_USER: monitor_user
+      POSTGRES_PASSWORD: secure_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg14
+    environment:
+      POSTGRES_DB: telemetry
+      POSTGRES_USER: timescale_user
+      POSTGRES_PASSWORD: timescale_pass
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  # MQTT брокер
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"  # MQTT
+      - "9001:9001"  # WebSocket MQTT
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - mosquitto_data:/mosquitto/data
+
+  # Backend сервер
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"  # REST API
+      - "3001:3001"  # WebSocket
+    environment:
+      - DB_HOST=postgres
+      - TS_HOST=timescaledb
+      - MQTT_BROKER=mosquitto
+    depends_on:
+      - postgres
+      - timescaledb
+      - mosquitto
+
+  # Frontend сервер
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"    # Веб-интерфейс
+    depends_on:
+      - backend
+
+  # Мониторинг (опционально)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+volumes:
+  postgres_data:
+  timescale_data:
+  mosquitto_data:

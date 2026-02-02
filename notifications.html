@@ -1,0 +1,28 @@
+<div class="alert-rule">
+    <h4>Правило: Низкий уровень кислорода</h4>
+    
+    <div class="rule-conditions">
+        <span>Условие:</span>
+        <select>
+            <option>Уровень кислорода</option>
+            <option>Температура лазера</option>
+            <option>Остаток материала</option>
+        </select>
+        
+        <select>
+            <option>ниже</option>
+            <option>выше</option>
+            <option>равно</option>
+        </select>
+        
+        <input type="number" value="1.0" step="0.1"> %
+    </div>
+    
+    <div class="rule-actions">
+        <span>Действия:</span>
+        <label><input type="checkbox" checked> Push-уведомление</label>
+        <label><input type="checkbox" checked> Email</label>
+        <label><input type="checkbox"> SMS</label>
+        <label><input type="checkbox"> Остановить печать</label>
+    </div>
+</div>

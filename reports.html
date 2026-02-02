@@ -1,0 +1,33 @@
+<div class="report-builder">
+    <h3>Конструктор отчета</h3>
+    
+    <div class="report-filters">
+        <!-- Выбор принтеров -->
+        <select multiple>
+            <option>Все принтеры</option>
+            <option>Printer-001</option>
+            <option>Printer-002</option>
+        </select>
+        
+        <!-- Период -->
+        <input type="date" id="start-date">
+        <input type="date" id="end-date">
+        
+        <!-- Параметры -->
+        <select multiple>
+            <option>Температура лазера</option>
+            <option>Уровень кислорода</option>
+            <option>Остаток материала</option>
+            <option>Стадия печати</option>
+        </select>
+        
+        <!-- Формат экспорта -->
+        <div class="export-format">
+            <label><input type="radio" name="format" value="csv"> CSV</label>
+            <label><input type="radio" name="format" value="pdf"> PDF</label>
+            <label><input type="radio" name="format" value="excel"> Excel</label>
+        </div>
+        
+        <button class="generate-btn">Сгенерировать отчет</button>
+    </div>
+</div>
